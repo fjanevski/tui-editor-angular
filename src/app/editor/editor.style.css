@@ -1,3 +1,15 @@
 .cloak-link {
   background: red !important;
 }
+
+.code-block-header button {
+  display: none;
+}
+
+.cloak-link-button {
+  background: #ff8500 !important;
+  border-radius: 3px !important;
+  padding: 10px !important;
+  color: white !important;
+  text-align: center !important;
+}

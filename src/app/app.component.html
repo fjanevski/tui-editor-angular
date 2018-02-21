@@ -7,17 +7,19 @@
 
   </div>
 
-
   <app-editor (onSaveHTMLData)="onSaveHTMLData($event)"
               (onSaveMarkdownData)="onSaveMarkdownData($event)">
   </app-editor>
+
   <div class="data-display">
     <div class="html-data">
       <h2>html</h2>
+      <hr>
       <pre>{{ htmlData }}</pre>
     </div>
     <div class="markdown-data">
       <h2>markdown</h2>
+      <hr>
       <pre>{{ markdownData }}</pre>
     </div>
   </div>

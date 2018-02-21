@@ -16,15 +16,9 @@ const POPUP_CONTENT = `
   </div>
 `;
 
-
-// [${data.linkText}](${data.linkUrl})
-
-const WW_CLOAK_LINK_TEMPLATE = `<a href="{{cloakLinkUrl}}" rel="nofollow">{{cloakLinkText}}</a>`;
-const MD_CLOAK_LINK_TEMPLATE = '[!cloak--{{cloakLinkText}}](cloakLinkUrl)';
-
-
-const MD_CLOAK_LINK_REGEXP = /\[\!cloak\-\-(.+?)\]\((.+?)\)/;
-const WW_CLOAK_LINK_REGEXP = /\<a href="(.+?)" rel="?nofollow"?\>(.+?)\<\/a\>/;
+const WW_CLOAK_LINK_TEMPLATE =
+  `<pre><code data-language="cloakLink" class="lang-cloakLink">{{cloakLinkText}},{{cloakLinkUrl}}<br></code></pre>`;
+const MD_CLOAK_LINK_TEMPLATE = '```cloakLink\n{{cloakLinkText}},{{cloakLinkUrl}}\n```';
 
 @Injectable()
 export class CloakLinkService {
@@ -73,10 +67,8 @@ export class CloakLinkService {
         const cm = mdEditor.getEditor();
         cm.replaceSelection(MD_CLOAK_LINK_TEMPLATE
           .replace('{{cloakLinkUrl}}', data.linkUrl)
-          .replace('{{cloakLinkText}}', data.linkText));
+          .replace('{{cloakLinkText}}', data.linkText), true);
 
-
-        editor.setMarkdown(editor.mdEditor.getValue(), true);
         this.cloakLinkPopup.hide();
       }
     });
@@ -84,34 +76,14 @@ export class CloakLinkService {
     editor.addCommand(EDITOR_TYPE.WYSIWYG, {
       name: saveCloakLinkEvent,
       exec: (wwEditor, data) => {
-        console.log(data);
-        const cm = wwEditor.getEditor();
-        cm.replaceSelection(WW_CLOAK_LINK_TEMPLATE
-          .replace('{{cloakLinkUrl}}', data.linkUrl)
-          .replace('{{cloakLinkText}}', data.linkText));
 
-        editor.setHtml(editor.wwEditor.getValue(), true);
+        editor.setHtml(WW_CLOAK_LINK_TEMPLATE
+          .replace('{{cloakLinkUrl}}', data.linkUrl)
+          .replace('{{cloakLinkText}}', data.linkText), true);
 
         this.cloakLinkPopup.hide();
       }
     });
-
-
-    // editor.eventManager.listen('convertorAfterMarkdownToHtmlConverted', function (html) {
-    //
-    //   console.log('before ', html);
-    //
-    //   html.replace(WW_CLOAK_LINK_REGEXP, (found, linkText, linkUrl) => {
-    //     console.log(linkText, linkUrl);
-    //     return MD_CLOAK_LINK_TEMPLATE
-    //       .replace('{{cloakLinkUrl}}', linkUrl)
-    //       .replace('{{cloakLinkText}}', linkText);
-    //   });
-    //
-    //   console.log('after ', html);
-    //   return html;
-    // });
-
   }
 
   private preparation(editor: Editor) {

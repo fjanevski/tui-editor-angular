@@ -3,7 +3,10 @@ import * as Editor from 'tui-editor';
 import {EDITOR_TYPE} from './editor.types';
 import {CloakLinkService} from './cloakLink/cloakLink.service';
 
-@Component({
+const CLOAK_LINK_PREVIEW = `<div class="cloak-link-button">{{cloakLinkTest}} - {{cloakLinkUrl}}</div>`;
+
+
+  @Component({
   selector: 'app-editor',
   templateUrl: 'editor.template.html',
   styleUrls: [
@@ -34,11 +37,29 @@ export class EditorComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+
+    Editor.defineExtension('cloakLink', function() {
+      Editor.codeBlockManager.setReplacer('cloakLink', function(linkUrl, linkText) {
+        const wrapperId = 'cl' + Math.random().toString(36).substr(2, 10);
+        setTimeout(renderCloakLink.bind(null, wrapperId, linkUrl, linkText), 0);
+
+        return '<div id="' + wrapperId + '"></div>';
+      });
+    });
+
+    function renderCloakLink(wrapperId, content) {
+      let [text, url] = content.split(',');
+      let el = document.querySelector('#' + wrapperId);
+      el.innerHTML = CLOAK_LINK_PREVIEW.replace('{{cloakLinkTest}}', text).replace('{{cloakLinkUrl}}', url);
+    }
+
+
     this.editor = new Editor({
       el: this.child.nativeElement,
       initialEditType: EDITOR_TYPE.WYSIWYG,
       previewStyle: 'vertical',
       height: '300px',
+      initialValue: '```cloakLink\n{{cloakLinkText}},{{cloakLinkUrl}}\n```',
       events: {
         load: this.onLoad.bind(this),
         change: this.onChange.bind(this),
@@ -46,9 +67,16 @@ export class EditorComponent implements OnInit, OnDestroy {
           // implementation of actual saving
         },
         paste: this.onPaste.bind(this),
-        drop: this.onPreventDrop.bind(this)
-      }
+        drop: this.onPreventDrop.bind(this),
+      },
+      exts: ['cloakLink']
     });
+
+
+    console.log(this.editor.mdEditor);
+
+    this.onChange();
+
 
     // register Cloak Link functionality
     this.cloakLinkService.registerCloakLink(this.editor);

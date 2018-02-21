@@ -1,0 +1,35 @@
+.editor-container {
+  max-width: 1200px;
+  margin: 50px auto;
+}
+
+.data-display {
+  padding-top: 20px;
+  display: block;
+}
+
+.html-data {
+  padding: 10px;
+  margin-right: 10px;
+  float: left;
+  width: calc(50% - 32px);
+  border: 1px solid lightgray;
+}
+
+pre {
+  white-space: pre-line;
+}
+
+.markdown-data {
+  padding: 10px;
+  margin-left: 10px;
+  float: right;
+  width: calc(50% - 32px);
+  border: 1px solid lightgray;
+}
+
+.editor-options {
+  padding: 10px;
+  margin: 20px 0;
+  border: 1px solid lightgray;
+}

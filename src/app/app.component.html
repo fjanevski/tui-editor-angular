@@ -1,0 +1,25 @@
+<div class="editor-container">
+  <h1>TUI Editor POC</h1>
+
+  <div class="editor-options">
+    <input type="checkbox" (change)="onShouldRemoveAddInlineCode()">
+    <label>Remove option to add inline code</label>
+
+  </div>
+
+
+  <app-editor (onSaveHTMLData)="onSaveHTMLData($event)"
+              (onSaveMarkdownData)="onSaveMarkdownData($event)">
+  </app-editor>
+  <div class="data-display">
+    <div class="html-data">
+      <h2>html</h2>
+      <pre>{{ htmlData }}</pre>
+    </div>
+    <div class="markdown-data">
+      <h2>markdown</h2>
+      <pre>{{ markdownData }}</pre>
+    </div>
+  </div>
+</div>
+

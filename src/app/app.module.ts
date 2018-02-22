@@ -5,7 +5,7 @@ import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
 import {EditorComponent} from './editor/editor.component';
-import {CloakLinkService} from './editor/cloakLink/cloakLink.service';
+import {CTALinkService} from './editor/ctaLink/cloakLink.service';
 
 @NgModule({
   declarations: [
@@ -17,7 +17,7 @@ import {CloakLinkService} from './editor/cloakLink/cloakLink.service';
     FormsModule,
     HttpModule
   ],
-  providers: [CloakLinkService],
+  providers: [CTALinkService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -6,10 +6,12 @@
   display: none;
 }
 
-.cloak-link-button {
+.cta-button {
   background: #ff8500 !important;
   border-radius: 3px !important;
-  padding: 10px !important;
+  padding: 5px !important;
   color: white !important;
   text-align: center !important;
+  margin-bottom: 10px;
 }
+

@@ -1,12 +1,11 @@
-import {Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation} from '@angular/core';
 import * as Editor from 'tui-editor';
 import {EDITOR_TYPE} from './editor.types';
-import {CloakLinkService} from './cloakLink/cloakLink.service';
+import {CTALinkService} from './ctaLink/cloakLink.service';
+import {MdAddCTALink} from './commands/markdownCommands/AddCTALink';
+import {WwAddCTALink} from './commands/wysiwygCommands/AddCTALink';
 
-const CLOAK_LINK_PREVIEW = `<div class="cloak-link-button">{{cloakLinkTest}} - {{cloakLinkUrl}}</div>`;
-
-
-  @Component({
+@Component({
   selector: 'app-editor',
   templateUrl: 'editor.template.html',
   styleUrls: [
@@ -16,7 +15,7 @@ const CLOAK_LINK_PREVIEW = `<div class="cloak-link-button">{{cloakLinkTest}} - {
     'editor.style.css'
   ],
   encapsulation: ViewEncapsulation.None,
-  providers: [CloakLinkService]
+  providers: [CTALinkService]
 })
 export class EditorComponent implements OnInit, OnDestroy {
 
@@ -29,37 +28,19 @@ export class EditorComponent implements OnInit, OnDestroy {
   @Output()
   private onSaveMarkdownData: EventEmitter<string> = new EventEmitter<string>();
 
-  private editor: Editor = null;
+  private editor = null;
 
-  private addInlineCode =  null;
+  private addInlineCode = null;
 
-  constructor(private cloakLinkService: CloakLinkService) {
+  constructor(private ctaLinkService: CTALinkService) {
   }
 
   ngOnInit(): void {
-
-    Editor.defineExtension('cloakLink', function() {
-      Editor.codeBlockManager.setReplacer('cloakLink', function(linkUrl, linkText) {
-        const wrapperId = 'cl' + Math.random().toString(36).substr(2, 10);
-        setTimeout(renderCloakLink.bind(null, wrapperId, linkUrl, linkText), 0);
-
-        return '<div id="' + wrapperId + '"></div>';
-      });
-    });
-
-    function renderCloakLink(wrapperId, content) {
-      let [text, url] = content.split(',');
-      let el = document.querySelector('#' + wrapperId);
-      el.innerHTML = CLOAK_LINK_PREVIEW.replace('{{cloakLinkTest}}', text).replace('{{cloakLinkUrl}}', url);
-    }
-
-
     this.editor = new Editor({
       el: this.child.nativeElement,
       initialEditType: EDITOR_TYPE.WYSIWYG,
       previewStyle: 'vertical',
       height: '300px',
-      initialValue: '```cloakLink\n{{cloakLinkText}},{{cloakLinkUrl}}\n```',
       events: {
         load: this.onLoad.bind(this),
         change: this.onChange.bind(this),
@@ -68,18 +49,30 @@ export class EditorComponent implements OnInit, OnDestroy {
         },
         paste: this.onPaste.bind(this),
         drop: this.onPreventDrop.bind(this),
-      },
-      exts: ['cloakLink']
+      }
     });
 
+    // Register Markdown commands
+    this.editor.addCommand(MdAddCTALink);
+    // Register Wysiwyg commands
+    this.editor.addCommand(WwAddCTALink);
 
-    console.log(this.editor.mdEditor);
+    this.editor.eventManager.listen('convertorBeforeHtmlToMarkdownConverted', (html) => {
+      return html.replace(/<a href="(.+?)"(?: rel="nofollow")>(.+?)<\/a>/, function (founded, href, text) {
+        return `[${text}](${href}){: rel="nofollow"}`;
+      });
+    });
 
+    this.editor.eventManager.listen('convertorAfterHtmlToMarkdownConverted', (markdown) => {
+      return markdown.replace(/\\/g, '');
+    });
+
+    this.editor.eventManager.listen('convertorAfterMarkdownToHtmlConverted', (html) => {
+      return html.replace(/{:.+}/g, '');
+    });
+
+    this.ctaLinkService.registerCloakLink(this.editor);
     this.onChange();
-
-
-    // register Cloak Link functionality
-    this.cloakLinkService.registerCloakLink(this.editor);
   }
 
   ngOnDestroy(): void {
@@ -95,7 +88,7 @@ export class EditorComponent implements OnInit, OnDestroy {
     this.editor.getUI().toolbar.addButton(this.addInlineCode.button, this.addInlineCode.index + 1);
   }
 
-  private onLoad(editor: Editor) {
+  private onLoad(editor) {
     // Remove codeblock button
     editor.getUI().toolbar.$el.find('.tui-codeblock').remove();
 
@@ -130,16 +123,10 @@ export class EditorComponent implements OnInit, OnDestroy {
   }
 
   private onPreventDrop(event) {
-    const text = event.data.dataTransfer.getData('TEXT');
-    event.data.preventDefault();
-    if (this.editor.isMarkdownMode()) {
-      this.editor.mdEditor.replaceSelection(text);
-    } else {
-      this.editor.wwEditor.replaceSelection(text);
-    }
+    // to be implemented
   }
 
-  private getInlineCodeButton(editor: Editor) {
+  private getInlineCodeButton(editor) {
     const index = editor.getUI().toolbar.buttons.findIndex(({className}) => className.includes('tui-code'));
     return {
       button: editor.getUI().toolbar.buttons[index],

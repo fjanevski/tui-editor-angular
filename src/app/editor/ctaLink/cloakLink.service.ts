@@ -38,7 +38,6 @@ export class CTALinkService {
 
 
     editor.eventManager.listen('convertorAfterHtmlToMarkdownConverted', markdown => {
-      console.log(markdown);
       return markdown.replace(faleseSanitizedMarkdownClickoutLink, (fullmatch) => {
         return fullmatch.replace(/\\/g, '');
       });

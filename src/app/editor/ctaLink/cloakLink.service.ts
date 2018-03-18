@@ -3,7 +3,11 @@ import * as Editor from 'tui-editor';
 
 const cloakLinkButtonClickEvent = 'cloakLinkButtonClickEvent';
 const saveCloakLinkEvent = 'saveCloakLinkEvent';
+const linkWithAttributes = /<a href="([^"]*)"\s(rel=".+?"\sclass=".+?"\starget=".+?)">(.+?)<\/a>/g
 
+const faleseSanitizedMarkdownClickoutLink = /\\{clickout\\}.+?\\{clickoutend\\}/g
+const htmlclickoutlink = /<a(.+?)(?:href=.+?)(.+?)"(.+?)class="clickout">(.+?)<\/a>/g
+const intermediateHtmlClickoutLink = /{clickout}<a href="(.+?)">(.+?)<\/a>{(.+?)}{clickoutend}/g
 const POPUP_CONTENT = `
   <label for="linkText">Link text</label>
     <input type="text" class="te-link-text-input" value="{{editorot}}"/>
@@ -32,6 +36,26 @@ export class CTALinkService {
 
     editor.eventManager.addEventType(cloakLinkButtonClickEvent);
 
+
+    editor.eventManager.listen('convertorAfterHtmlToMarkdownConverted', markdown => {
+      return markdown.replace(faleseSanitizedMarkdownClickoutLink, (fullmatch) => {
+        return fullmatch.replace(/\\/g, '');
+      });
+    });
+
+    editor.eventManager.listen('convertorBeforeHtmlToMarkdownConverted', html => {
+      return html.replace(linkWithAttributes, (matched, url, attributes, text) => {
+        return `{clickout}[${text}](${url}){${attributes}"}{clickoutend}`;
+       });
+    });
+
+    editor.eventManager.listen('convertorAfterMarkdownToHtmlConverted', html => {
+      // advanced replacement for links with attributes
+      return html.replace(intermediateHtmlClickoutLink, (matched, url, text, attributes) => {
+        return `<a href="${url}" ${attributes}>${text}</a>`;
+      });
+    });
+
     editor.eventManager.listen(cloakLinkButtonClickEvent, () => {
       this.ctaLinkPopup = editor.getUI().createPopup({
         content: POPUP_CONTENT.replace('{{editorot}}', editor.getSelectedText()),
@@ -48,7 +72,8 @@ export class CTALinkService {
       this.ctaLinkPopup.on('click .te-ok-button', () => {
         editor.exec('AddCTALink', {
           linkText: this.ctaLinkPopup.$el.find('input.te-link-text-input').val(),
-          url: this.ctaLinkPopup.$el.find('input.te-url-input').val()
+          url: this.ctaLinkPopup.$el.find('input.te-url-input').val(),
+          attributes: 'rel="nofollow" class="clickout" target="_blank"'
         });
         this.ctaLinkPopup.hide();
       });

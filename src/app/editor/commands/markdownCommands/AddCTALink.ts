@@ -18,9 +18,11 @@ export const MdAddCTALink = CommandManager.command('markdown', {
       ch: range.to.ch
     };
 
-    const {linkText, url} = data;
+    const {linkText, url, attributes} = data;
 
-    const replaceText = `[${linkText}](${url}){: rel="nofollow"}`;
+    const replaceText = `{clickout}[${linkText}](${url}){${attributes}}{clickoutend}`;
+
+
     doc.replaceRange(replaceText, from, to);
 
     cm.focus();

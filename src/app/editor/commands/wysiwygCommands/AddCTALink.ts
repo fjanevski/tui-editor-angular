@@ -7,7 +7,7 @@ export const WwAddCTALink = CommandManager.command('wysiwyg', {
 
     const {url, linkText} = data;
 
-    const link = sq.createElement('a', {href: url, rel: 'nofollow', class: "clickout", target: "_blank"});
+    const link = sq.createElement('a', {href: url, rel: 'nofollow', class: 'clickout', target: '_blank'});
     link.innerHTML = linkText;
     sq.insertElement(link);
     wwe.focus();

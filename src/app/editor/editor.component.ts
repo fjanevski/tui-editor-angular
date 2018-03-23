@@ -57,19 +57,20 @@ export class EditorComponent implements OnInit, OnDestroy {
     // Register Wysiwyg commands
     this.editor.addCommand(WwAddCTALink);
 
-    this.editor.eventManager.listen('convertorBeforeHtmlToMarkdownConverted', (html) => {
-      return html.replace(/<a href="(.+?)"(?: rel="nofollow")>(.+?)<\/a>/, function (founded, href, text) {
-        return `[${text}](${href}){: rel="nofollow"}`;
-      });
-    });
-
-    this.editor.eventManager.listen('convertorAfterHtmlToMarkdownConverted', (markdown) => {
-      return markdown.replace(/\\/g, '');
-    });
-
-    this.editor.eventManager.listen('convertorAfterMarkdownToHtmlConverted', (html) => {
-      return html.replace(/{:.+}/g, '');
-    });
+    // Not needed but need to check again
+    // this.editor.eventManager.listen('convertorBeforeHtmlToMarkdownConverted', (html) => {
+    //   return html.replace(/<a href="(.+?)"(?: rel="nofollow")>(.+?)<\/a>/, function (founded, href, text) {
+    //     return `[${text}](${href}){: rel="nofollow"}`;
+    //   });
+    // });
+    //
+    // this.editor.eventManager.listen('convertorAfterHtmlToMarkdownConverted', (markdown) => {
+    //   return markdown.replace(/\\/g, '');
+    // });
+    //
+    // this.editor.eventManager.listen('convertorAfterMarkdownToHtmlConverted', (html) => {
+    //   return html.replace(/{:.+}/g, '');
+    // });
 
     this.ctaLinkService.registerCloakLink(this.editor);
     this.onChange();
@@ -91,6 +92,16 @@ export class EditorComponent implements OnInit, OnDestroy {
   private onLoad(editor) {
     // Remove codeblock button
     editor.getUI().toolbar.$el.find('.tui-codeblock').remove();
+
+    // Should be used on load
+    // const intermediateHtmlClickoutLink = /{clickout}<a href="(.+?)">(.+?)<\/a>{(.+?)}{clickoutend}/g;
+    // const value = '{clickout}<a href="https://www.google.com">texxxt</a>{rel="nofollow" class="clickout" target="_blank"}{clickoutend}'.replace(intermediateHtmlClickoutLink, (matched, url, text, attributes) => {
+    //   return `<a href="${url}" ${attributes}>${text}</a>`;
+    // });
+    // editor.setHtml(value);
+
+
+
 
     // Remove H1 from Headings
     editor.getUI().popupAddHeading.$el.find(`li[data-value=1]`).remove();

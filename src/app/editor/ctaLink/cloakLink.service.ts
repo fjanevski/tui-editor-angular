@@ -3,11 +3,14 @@ import * as Editor from 'tui-editor';
 
 const cloakLinkButtonClickEvent = 'cloakLinkButtonClickEvent';
 const saveCloakLinkEvent = 'saveCloakLinkEvent';
+
 const linkWithAttributes = /<a href="([^"]*)"\s(rel=".+?"\sclass=".+?"\starget=".+?)">(.+?)<\/a>/g
 
 const faleseSanitizedMarkdownClickoutLink = /\\{clickout\\}.+?\\{clickoutend\\}/g
 const htmlclickoutlink = /<a(.+?)(?:href=.+?)(.+?)"(.+?)class="clickout">(.+?)<\/a>/g
 const intermediateHtmlClickoutLink = /{clickout}<a href="(.+?)">(.+?)<\/a>{(.+?)}{clickoutend}/g
+
+
 const POPUP_CONTENT = `
   <label for="linkText">Link text</label>
     <input type="text" class="te-link-text-input" value="{{editorot}}"/>
